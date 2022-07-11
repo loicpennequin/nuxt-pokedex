@@ -21,6 +21,7 @@
     "lint-staged": "^13.0.3",
     "nuxt": "3.0.0-rc.4",
     "prettier": "^2.7.1",
+    "sass": "^1.53.0",
     "trpc-nuxt": "^0.2.2",
     "typescript": "^4.7.4",
     "vite-plugin-eslint": "^1.6.1",
@@ -32,5 +33,8 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "trpc": "^0.11.3"
   }
 }

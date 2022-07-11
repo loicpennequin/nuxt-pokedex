@@ -1,10 +1,8 @@
 import { defineNuxtConfig } from 'nuxt';
 
-// https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
-  extends: ['./features/core', '/features/ui'],
+  extends: ['./core'],
   modules: [
-    'trpc-nuxt',
     [
       '@unocss/nuxt',
       {
@@ -15,12 +13,5 @@ export default defineNuxtConfig({
         preflight: true
       }
     ]
-  ],
-  trpc: {
-    baseURL: 'http://localhost:3000',
-    endpoint: '/trpc'
-  },
-  typescript: {
-    strict: true
-  }
+  ]
 });
