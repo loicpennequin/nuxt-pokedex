@@ -5,7 +5,7 @@ const isSidebarOpened = ref(false);
 </script>
 
 <template>
-  <div class="layout" grid min-h-screen min-w-screen>
+  <UiContainer class="layout" grid min-h-screen>
     <input
       v-model="isSidebarOpened"
       id="sidebar-toggle"
@@ -13,34 +13,21 @@ const isSidebarOpened = ref(false);
       type="checkbox"
     />
 
-    <header
-      bg-red-100
-      col-span="full"
-      flex
-      gap-3
-      items-center
-      sticky
-      top="0"
-      z-1
-    >
-      <label for="sidebar-toggle"><h1>Pokedex App</h1></label>
-    </header>
+    <AppHeader col-span="full" sticky top="0" z-1 />
 
     <a href="#main" sr-only>Skip to main content</a>
 
     <aside
-      bg-red-100
-      class="layout__sidebar"
+      bg="white dark:dark-100"
       col-start-1
-      h="lt-sm:screen"
+      h="screen"
       lt-sm="fixed"
-      min-w-15rem
       top="lt-sm:0"
       transition-duration="0 lt-sm:300"
       transition-transform
       z="lt-sm:2"
     >
-      <label for="sidebar-toggle">Sidebar</label>
+      <AppSideBar />
     </aside>
 
     <main
@@ -50,7 +37,7 @@ const isSidebarOpened = ref(false);
     >
       <slot />
     </main>
-  </div>
+  </UiContainer>
 </template>
 
 <style scoped lang="scss">
