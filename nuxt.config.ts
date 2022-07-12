@@ -1,15 +1,13 @@
 import { defineNuxtConfig } from 'nuxt';
-import Icons from 'unplugin-icons/vite';
 import transformerDirective from '@unocss/transformer-directives';
-import IconsResolver from 'unplugin-icons/resolver';
-import Components from 'unplugin-vue-components/vite';
 import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders';
 import presetIcons from '@unocss/preset-icons';
 import presetWind from '@unocss/preset-wind';
 import { presetAttributify } from 'unocss';
 
+const unoTransformers = [transformerDirective()];
 export default defineNuxtConfig({
-  extends: ['./features/core', './features/ui'],
+  extends: ['./features/core', './features/ui', './features/pokemon'],
   modules: ['trpc-nuxt', '@unocss/nuxt'],
   trpc: {
     baseURL: 'http://localhost:3000',
@@ -28,26 +26,11 @@ export default defineNuxtConfig({
       presetIcons({
         collections: {
           ui: FileSystemIconLoader('./assets/icons', svg =>
-            svg.replace(/#fff/, 'currentColor')
+            svg.replace('<svg ', '<svg fill="currentColor" ')
           )
         }
-      })
-    ]
-    // transformers: [transformerDirective()]
-  },
-  vite: {
-    plugins: [
-      Components({
-        resolvers: [IconsResolver()]
-      }),
-
-      Icons({
-        customCollections: {
-          ui: FileSystemIconLoader('./assets/icons', svg =>
-            svg.replace(/^<svg /, '<svg fill="currentColor" ')
-          )
-        }
-      })
-    ]
+      }) as any
+    ],
+    transformers: unoTransformers as any
   }
 });

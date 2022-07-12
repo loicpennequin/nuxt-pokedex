@@ -3,35 +3,29 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <header
-    bg="white dark:dark-100"
-    flex
-    items="center"
-    justify="between"
-    p="2"
-    px="sm:10"
-  >
+  <header bg="white dark:dark-100" flex items="center" justify="between" p-2>
     <AppSideBarToggle
       flex
       gap="3"
       items="center"
       justify="start"
       px="3"
-      title="Hide list"
-      w="full"
+      :title="t('toggleLabel')"
     >
-      <span i-ui-bars />
+      <div h-7 i-ui-bars w-7 />
     </AppSideBarToggle>
     <h1 m="0" text="2xl">
       <NuxtLink to="/">{{ t('title') }}</NuxtLink>
     </h1>
+    <div />
   </header>
 </template>
 
 <i18n lang="json">
 {
   "en": {
-    "title": "Pokédex App"
+    "title": "Pokédex",
+    "toggleLabel": "Hide List"
   }
 }
 </i18n>

@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+const router = useRouter();
+console.log(router.getRoutes());
+</script>
 <template>
   <NuxtLayout>
     <NuxtPage />

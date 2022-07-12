@@ -1,5 +1,5 @@
 <template>
-  <nav flex flex-col min-w="15rem">
+  <nav flex flex-col h-full min-w="15rem" overflow-auto>
     <AppSideBarToggle
       flex
       gap="3"
@@ -13,7 +13,6 @@
       <span>Hide list</span>
     </AppSideBarToggle>
 
-    <!-- <PokemonList /> -->
-    Pokémon List
+    <PokemonList />
   </nav>
 </template>
