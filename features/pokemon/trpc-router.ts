@@ -1,6 +1,6 @@
 import * as trpc from '@trpc/server';
 import { z } from 'zod';
-import { findAllPokemons, findPokemonByName } from './api';
+import { findAllPokemons, findEvolutionChain, findPokemonByName } from './api';
 import { findAllPokemonsDto } from './api/dtos';
 
 export const pokemonRouter = trpc
@@ -12,4 +12,8 @@ export const pokemonRouter = trpc
   .query('findOneByName', {
     input: z.string(),
     resolve: ({ input }) => findPokemonByName(input)
+  })
+  .query('findEvolutionChain', {
+    input: z.number(),
+    resolve: ({ input }) => findEvolutionChain(input)
   });

@@ -1,3 +1,4 @@
+import { Ref } from 'vue';
 import { QueryClient, UseQueryOptions } from 'vue-query';
 import { RouteLocationNormalized } from 'vue-router';
 import { PathAndInput, TrpcQueryPath } from '../composables/useTrpcQuery';
@@ -10,7 +11,10 @@ type TrpcLoaderFunction<
 export type TrpcKeyDictionary = Record<string, TrpcQueryPath>;
 
 type LoaderDependencies<T extends TrpcKeyDictionary> = Partial<{
-  [Property in keyof T]: ReturnType<typeof useTrpcQuery<T[Property]>>['data'];
+  // [Property in keyof T]: ReturnType<
+  //   typeof useTrpcQuery<T[Property]>
+  // >['data']['value'];
+  [Property in keyof T]: any;
 }>;
 
 export type LoaderConfig<T extends TrpcKeyDictionary> = {
@@ -34,23 +38,41 @@ export const createLoader = <T extends TrpcKeyDictionary>(
       const route = useRoute();
       const resolvedData: LoaderDependencies<T> = reactive({});
 
+      function isEnabled(pathAndInput: Ref<any>, ssrPrefetch: boolean) {
+        if (import.meta.env.SSR && !ssrPrefetch) return false;
+        return !!pathAndInput.value;
+      }
       const entries: [string, ReturnType<typeof useTrpcQuery>][] =
         Object.entries(options).map(
           ([name, { key, queryOptions, ssrPrefetch }]) => {
             const pathAndInput = computed(() => key(route, resolvedData));
-            const resolvedQueryOptions = computed(() => ({
-              ...queryOptions,
-              enabled: !!pathAndInput.value && queryOptions.enabled
-            }));
+            const resolvedQueryOptions = computed(() => {
+              return {
+                ...queryOptions,
+                enabled:
+                  isEnabled(pathAndInput, ssrPrefetch) && queryOptions.enabled
+              };
+            });
+
             const query = useTrpcQuery(pathAndInput, resolvedQueryOptions);
             if (ssrPrefetch) {
-              onServerPrefetch(query.suspense);
+              onServerPrefetch(() => {
+                if (query.fetchStatus.value === 'idle') {
+                  console.error('Cannot ssrPrefetch an idle query', name);
+                  return;
+                }
+                return query.suspense();
+              });
             }
 
-            watch(query.data, newData => {
-              // @ts-ignore
-              resolvedData[name as keyof T] = newData;
-            });
+            watch(
+              query.data,
+              newData => {
+                // @ts-ignore
+                resolvedData[name as keyof T] = newData;
+              },
+              { immediate: true }
+            );
 
             return [name, query];
           }

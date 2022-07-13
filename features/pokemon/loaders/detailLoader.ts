@@ -6,5 +6,14 @@ export default createLoader({
     queryOptions: {},
     ssrPrefetch: true,
     waitPreloadBeforeNavigation: true
+  },
+  evolutions: {
+    key: (route, { pokemon }) => {
+      return (
+        pokemon && ['pokemon.findEvolutionChain', pokemon.evolutionChainId]
+      );
+    },
+    ssrPrefetch: true,
+    queryOptions: {}
   }
 });

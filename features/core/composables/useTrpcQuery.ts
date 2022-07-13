@@ -31,11 +31,13 @@ export const useTrpcQuery = <TPath extends TrpcQueryPath>(
 ) => {
   const client = useClient();
 
-  const resolvedOptions = computed(() => ({
-    queryKey: unref(pathAndInput),
-    queryFn: () => (client as any).query(...unref(pathAndInput)),
-    ...unref(options)
-  }));
+  const resolvedOptions = computed(() => {
+    return {
+      queryKey: unref(pathAndInput) || [],
+      queryFn: () => (client as any).query(...(unref(pathAndInput) || [])),
+      ...unref(options || {})
+    };
+  });
 
   return useQuery<InferQueryOutput<TPath>>(resolvedOptions);
 };
