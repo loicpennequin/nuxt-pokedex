@@ -77,7 +77,7 @@ onMounted(() => {
     key-field="name"
     :prerender="SSR_RESULT_PER_PAGE"
   >
-    <NuxtLink
+    <AppLink
       block
       capitalize
       h="32px"
@@ -88,7 +88,7 @@ onMounted(() => {
       @click="emit('item-click')"
     >
       {{ pokemon.name }}
-    </NuxtLink>
+    </AppLink>
   </RecycleScroller>
 
   <div v-if="!virtualScrollRoot" flex justify-between p="2" underline>

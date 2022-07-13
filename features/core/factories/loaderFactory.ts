@@ -116,18 +116,19 @@ export const createLoader = <T extends TrpcKeyDictionary>(
           const pathAndInput = key(route, resolvedData);
           const resolvedQueryOptions = {
             cacheTime: queryOptions.cacheTime,
-            staleTime: queryOptions.staleTime
+            staleTime: queryOptions.staleTime || 30_000
           };
 
           if (!pathAndInput) return;
+
           queryClient
-            .prefetchQuery(
+            .fetchQuery(
               pathAndInput,
               () => (client as any).query(...pathAndInput),
               resolvedQueryOptions
             )
-            .then(() => {
-              resolvedData[name] = queryClient.getQueryData(pathAndInput);
+            .then(data => {
+              resolvedData[name] = data;
               resolveQueryKeys();
             });
         }
