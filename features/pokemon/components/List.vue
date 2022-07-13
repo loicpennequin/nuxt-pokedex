@@ -62,6 +62,7 @@ onMounted(() => {
       :aria-label="t('searchLabel')"
       bg="white dark:dark-300"
       border="1 solid slate-400 dark:slate-600"
+      max-w-full
       p="2"
       :placeholder="t('searchLabel')"
     />

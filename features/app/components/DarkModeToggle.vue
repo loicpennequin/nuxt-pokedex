@@ -3,7 +3,16 @@ const colorMode = useColorMode();
 
 const isDarkMode = computed({
   get: () => colorMode.preference === 'dark',
-  set: val => (colorMode.preference = val ? 'dark' : 'light')
+  set: val => {
+    document.body.classList.add('color-mode--animating');
+    colorMode.preference = val ? 'dark' : 'light';
+
+    function cleanup() {
+      document.body.classList.remove('color-mode--animating');
+      document.body.removeEventListener('transitionend', cleanup);
+    }
+    document.body.addEventListener('transitionend', cleanup);
+  }
 });
 </script>
 
@@ -13,3 +22,12 @@ const isDarkMode = computed({
     <template #on><div fill="dark:white" i-ui-moon /></template>
   </UiSwitch>
 </template>
+
+<style lang="scss">
+body.color-mode--animating {
+  --at-apply: 'transition-colors duration-300';
+  * {
+    --at-apply: 'transition-colors duration-300';
+  }
+}
+</style>
