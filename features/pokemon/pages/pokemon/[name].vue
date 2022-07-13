@@ -12,6 +12,6 @@ const { data, isLoading } = pokemon;
 <template>
   <div>
     <div v-if="isLoading">Loading...</div>
-    <h2 v-if="data">{{ data?.name }}</h2>
+    <div v-if="data">{{ data }}</div>
   </div>
 </template>

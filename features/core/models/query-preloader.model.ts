@@ -1,21 +1,17 @@
 import { QueryClient } from 'vue-query';
 import { RouteLocationNormalized } from 'vue-router';
-import { LoaderOptions, QueriesOptions, RouteQueryMapFn } from './loader.model';
+import { LoaderConfig, TrpcKeyDictionary } from '../factories/loaderFactory';
 
 export type PromiseRecord<T = any> = Record<string, Promise<T>>;
 
-export class QueryPreloader<T> {
-  private queriesOptions: QueriesOptions<T>;
-
+export class QueryPreloader<T extends TrpcKeyDictionary> {
   private requiredPreloads: Promise<any>[] = [];
 
   private preloadsMap: PromiseRecord = {};
 
   private isPreloading = false;
 
-  constructor({ queriesOptions }: Omit<LoaderOptions<T>, 'name'>) {
-    this.queriesOptions = queriesOptions;
-  }
+  constructor(private queriesOptions: LoaderConfig<T>) {}
 
   private sleep(duration: number) {
     return new Promise(res => {
