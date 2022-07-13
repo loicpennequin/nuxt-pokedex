@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
+import { vClickOutside } from '@/features/ui/directives/click-outside';
 
 const isSidebarOpened = ref(false);
+const closeSidebar = () => {
+  isSidebarOpened.value = false;
+};
 </script>
 
 <template>
@@ -18,7 +22,7 @@ const isSidebarOpened = ref(false);
     <a href="#main" sr-only>Skip to main content</a>
 
     <aside
-      bg="white dark:dark-100"
+      v-click-outside="closeSidebar"
       col-start-1
       h="screen"
       lt-sm="fixed"

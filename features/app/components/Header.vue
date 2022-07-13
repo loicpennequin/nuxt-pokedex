@@ -17,7 +17,7 @@ const { t } = useI18n();
     <h1 m="0" text="2xl">
       <NuxtLink to="/">{{ t('title') }}</NuxtLink>
     </h1>
-    <div />
+    <AppDarkModeToggle />
   </header>
 </template>
 

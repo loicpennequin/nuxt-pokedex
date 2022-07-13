@@ -3,7 +3,8 @@ import {
   IPokemonSpecies,
   IPokemon,
   IChainLink,
-  IEvolutionChain
+  IEvolutionChain,
+  IPokemonSpeciesVariety
 } from 'pokeapi-typescript';
 import { POKEAPI_BASE_URL, POKEAPI_ENDPOINTS } from '../constants';
 import { createPokemon } from '../factories/pokemonFactory';
@@ -33,7 +34,11 @@ export const findPokemonByName = async (name: string) => {
   const species = await pokemonApi<IPokemonSpecies>(
     `${POKEAPI_ENDPOINTS.SPECIES}/${name}`
   );
-  const pokemon = await pokemonApi<IPokemon>(species.varieties[0].pokemon.url);
+
+  const defaultVariety = species.varieties.find(
+    v => v.is_default
+  ) as IPokemonSpeciesVariety;
+  const pokemon = await pokemonApi<IPokemon>(defaultVariety.pokemon.url);
 
   return createPokemon({ species, pokemon });
 };

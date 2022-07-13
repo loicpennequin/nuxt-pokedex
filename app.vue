@@ -41,7 +41,7 @@ router.beforeEach(async (to, from, next) => {
   }
 }
 
-#app {
-  --at-apply: 'color-black dark:color-white font-sans';
+#__nuxt {
+  --at-apply: 'bg-light-400 dark:bg-dark-300 color-black dark:color-white font-sans';
 }
 </style>

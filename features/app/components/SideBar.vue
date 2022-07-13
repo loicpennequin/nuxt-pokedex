@@ -1,5 +1,15 @@
 <template>
-  <nav flex flex-col h-full min-w="15rem" overflow-auto>
+  <UiSurface
+    is="nav"
+    bg="white dark:dark-100"
+    flex
+    flex-col
+    h-full
+    overflow-auto
+    p="0"
+    p-t-2
+    w="15rem"
+  >
     <AppSideBarToggle
       flex
       gap="3"
@@ -14,5 +24,5 @@
     </AppSideBarToggle>
 
     <PokemonList />
-  </nav>
+  </UiSurface>
 </template>
