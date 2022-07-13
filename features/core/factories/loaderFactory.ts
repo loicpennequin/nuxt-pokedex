@@ -113,7 +113,7 @@ export const createLoader = <T extends TrpcKeyDictionary>(
         }
 
         function preloadQuery(name: keyof T, { key, queryOptions }: any) {
-          const pathAndInput = key(route);
+          const pathAndInput = key(route, resolvedData);
           const resolvedQueryOptions = {
             cacheTime: queryOptions.cacheTime,
             staleTime: queryOptions.staleTime

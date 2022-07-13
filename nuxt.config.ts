@@ -30,9 +30,12 @@ export default defineNuxtConfig({
       presetWind(),
       presetIcons({
         collections: {
-          ui: FileSystemIconLoader('./assets/icons', svg =>
-            svg.replace('<svg ', '<svg fill="currentColor" ')
-          )
+          ui: FileSystemIconLoader('./assets/icons', svg => {
+            return svg
+              .replace('<svg ', '<svg fill="currentColor" ')
+              .split('style=')
+              .join(' style=');
+          })
         }
       }) as any
     ],

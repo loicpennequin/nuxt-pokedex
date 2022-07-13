@@ -13,7 +13,7 @@ export default createLoader({
         pokemon && ['pokemon.findEvolutionChain', pokemon.evolutionChainId]
       );
     },
-    ssrPrefetch: true,
-    queryOptions: {}
+    queryOptions: {},
+    waitPreloadBeforeNavigation: true
   }
 });
