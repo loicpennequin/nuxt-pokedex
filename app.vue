@@ -1,6 +1,16 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 const router = useRouter();
-console.log(router.getRoutes());
+const queryClient = useQueryClient();
+
+router.beforeEach(async (to, from, next) => {
+  if (!from.name) return next();
+
+  await Promise.all(
+    to.matched.map(match => match.meta.loader?.preload(to, queryClient))
+  );
+
+  next();
+});
 </script>
 <template>
   <NuxtLayout>

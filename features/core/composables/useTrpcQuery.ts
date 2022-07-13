@@ -1,19 +1,41 @@
 import type { inferHandlerInput } from '@trpc/server';
-import { UseQueryOptions } from 'vue-query';
+import type { Ref } from 'vue';
 import { TQueries, TQueryValues } from 'trpc-nuxt/dist/runtime/client';
 import { InferQueryOutput } from '../utils';
+import { QueryKey, UseQueryOptions, UseQueryReturnType } from 'vue-query';
 
-export const useTrpcQuery = <TPath extends keyof TQueryValues & string>(
-  pathAndInput: [path: TPath, ...args: inferHandlerInput<TQueries[TPath]>],
-  options?: UseQueryOptions<InferQueryOutput<TPath>>
+declare module 'vue-query' {
+  function useQuery<
+    TQueryFnData = unknown,
+    TError = unknown,
+    TData = TQueryFnData,
+    TQueryKey extends QueryKey = QueryKey
+  >(
+    options:
+      | UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+      | Ref<UseQueryOptions<TQueryFnData, TError, TData, TQueryKey>>
+  ): UseQueryReturnType<TData, TError>;
+}
+
+export type TrpcQueryPath = keyof TQueryValues & string;
+export type PathAndInput<TPath extends TrpcQueryPath> = [
+  path: TPath,
+  ...args: inferHandlerInput<TQueries[TPath]>
+];
+
+type MaybeRef<T> = T | Ref<T>;
+
+export const useTrpcQuery = <TPath extends TrpcQueryPath>(
+  pathAndInput: MaybeRef<PathAndInput<TPath>>,
+  options?: MaybeRef<UseQueryOptions<InferQueryOutput<TPath>>>
 ) => {
   const client = useClient();
 
-  return useQuery<InferQueryOutput<TPath>>(
-    pathAndInput,
-    () => {
-      return (client as any).query(...pathAndInput);
-    },
-    options
-  );
+  const resolvedOptions = computed(() => ({
+    queryKey: unref(pathAndInput),
+    queryFn: () => (client as any).query(...unref(pathAndInput)),
+    ...unref(options)
+  }));
+
+  return useQuery<InferQueryOutput<TPath>>(resolvedOptions);
 };

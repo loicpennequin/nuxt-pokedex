@@ -20,7 +20,8 @@ export default defineNuxtPlugin(nuxt => {
   if (process.server) {
     nuxt.hooks.hook('app:rendered', () => {
       if (!nuxt.payload.state) nuxt.payload.state = {};
-      nuxt.payload.state.vueQuery = dehydrate(queryClient);
+      const state = dehydrate(queryClient);
+      nuxt.payload.state.vueQuery = state;
     });
   }
 

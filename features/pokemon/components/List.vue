@@ -19,23 +19,23 @@ const limit = computed(() => (import.meta.env.SSR ? SSR_RESULT_PER_PAGE : 905));
 const { data: pokemons, suspense } = useTrpcQuery(
   ['pokemon.findAll', { limit: 905, offset: 0 }],
   {
-    staleTime: 0,
-    select(data) {
-      // We went to limit the amount of result serialized in the HTML during SSR
-      // if we use the itrpc query input, it will change the query key and trigger a hard loading state client sidebar_page
-      // let's avoid that
-      if (import.meta.env.SSR) {
-        return {
-          ...data,
-          results: data.results.slice(offset.value, offset.value + limit.value)
-        };
-      }
-      return data;
-    }
+    staleTime: 0
   }
 );
-
-onServerPrefetch(suspense);
+const queryClient = useQueryClient();
+onServerPrefetch(async () => {
+  await suspense();
+  // We went to limit the amount of result serialized in the HTML during SSR
+  // if we use the itrpc query input, it will change the query key and trigger a hard loading state client sidebar_page
+  // let's avoid that
+  queryClient.setQueryData(['pokemon.findAll', { limit: 905, offset: 0 }], {
+    ...pokemons.value,
+    results: pokemons.value?.results.slice(
+      offset.value,
+      offset.value + limit.value
+    )
+  });
+});
 
 const search = ref('');
 
@@ -56,7 +56,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div p="2" sticky top="0" z-1>
+  <UiSurface p="2" sticky top="0" z-1>
     <input
       v-model="search"
       :aria-label="t('searchLabel')"
@@ -65,7 +65,7 @@ onMounted(() => {
       p="2"
       :placeholder="t('searchLabel')"
     />
-  </div>
+  </UiSurface>
 
   <RecycleScroller
     v-if="pokemons"

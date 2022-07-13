@@ -7,7 +7,12 @@ import { presetAttributify } from 'unocss';
 
 const unoTransformers = [transformerDirective()];
 export default defineNuxtConfig({
-  extends: ['./features/core', './features/ui', './features/pokemon'],
+  extends: [
+    './features/app',
+    './features/core',
+    './features/ui',
+    './features/pokemon'
+  ],
   modules: ['trpc-nuxt', '@unocss/nuxt'],
   trpc: {
     baseURL: 'http://localhost:3000',
