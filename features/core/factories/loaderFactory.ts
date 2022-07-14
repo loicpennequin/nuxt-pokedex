@@ -1,26 +1,23 @@
-import { Ref } from 'vue';
 import { QueryClient, UseQueryOptions } from 'vue-query';
 import { RouteLocationNormalized } from 'vue-router';
 import { PathAndInput, TrpcQueryPath } from '../composables/useTrpcQuery';
-
-type TrpcLoaderFunction<
-  T extends TrpcQueryPath,
-  TDeps extends Record<string, any>
-> = (route: RouteLocationNormalized, deps: TDeps) => PathAndInput<T> | null;
+import { objectEntries } from '../utils';
 
 export type TrpcKeyDictionary = Record<string, TrpcQueryPath>;
 
-type LoaderDependencies<T extends TrpcKeyDictionary> = Partial<{
-  // [Property in keyof T]: ReturnType<
-  //   typeof useTrpcQuery<T[Property]>
-  // >['data']['value'];
-  [Property in keyof T]: any;
-}>;
+type LoaderDependencies<T extends TrpcKeyDictionary> = {
+  [Property in keyof T]?: ReturnType<
+    typeof useTrpcQuery<T[Property]>
+  >['data']['value'];
+};
 
 export type LoaderConfig<T extends TrpcKeyDictionary> = {
-  [Property in keyof T]: {
-    key: TrpcLoaderFunction<T[Property], LoaderDependencies<T>>;
-    queryOptions: UseQueryOptions;
+  [Property in keyof T]: (
+    route: RouteLocationNormalized,
+    deps: Record<string, any>
+  ) => {
+    key: PathAndInput<T[Property]>;
+    queryOptions?: UseQueryOptions;
     ssrPrefetch?: boolean;
     waitPreloadBeforeNavigation?: boolean;
   };
@@ -30,58 +27,63 @@ type UseTrpcQueryRecord<T extends TrpcKeyDictionary> = {
   [Property in keyof T]: ReturnType<typeof useTrpcQuery<T[Property]>>;
 };
 
+type Loader<T extends TrpcKeyDictionary> = {
+  load(): UseTrpcQueryRecord<T>;
+  preload(
+    route: RouteLocationNormalized,
+    queryClient: QueryClient
+  ): Promise<void>;
+};
+
 export const createLoader = <T extends TrpcKeyDictionary>(
   options: LoaderConfig<T>
-) => {
+): Loader<T> => {
   return {
-    load(): UseTrpcQueryRecord<T> {
+    load() {
       const route = useRoute();
       const resolvedData: LoaderDependencies<T> = reactive({});
 
-      function isEnabled(pathAndInput: Ref<any>, ssrPrefetch: boolean) {
-        if (import.meta.env.SSR && !ssrPrefetch) return false;
-        return !!pathAndInput.value;
-      }
-      const entries: [string, ReturnType<typeof useTrpcQuery>][] =
-        Object.entries(options).map(
-          ([name, { key, queryOptions, ssrPrefetch }]) => {
-            const pathAndInput = computed(() => key(route, resolvedData));
-            const resolvedQueryOptions = computed(() => {
-              return {
-                ...queryOptions,
-                enabled:
-                  isEnabled(pathAndInput, ssrPrefetch) && queryOptions.enabled
-              };
+      const entries: [keyof T, ReturnType<typeof useTrpcQuery>][] =
+        objectEntries(options).map(([name, queryDef]) => {
+          const pathAndInput = computed(() => {
+            const { key } = queryDef(route, resolvedData);
+
+            return key;
+          });
+
+          const resolvedQueryOptions = computed(() => {
+            const { queryOptions = {} } = queryDef(route, resolvedData);
+            return queryOptions;
+          });
+
+          const query = useTrpcQuery(pathAndInput, resolvedQueryOptions as any);
+
+          const { ssrPrefetch } = queryDef(route, resolvedData);
+          if (ssrPrefetch) {
+            onServerPrefetch(() => {
+              if (query.fetchStatus.value === 'idle') {
+                console.error('Cannot ssrPrefetch an idle query', name);
+                return;
+              }
+              return query.suspense();
             });
-
-            const query = useTrpcQuery(pathAndInput, resolvedQueryOptions);
-            if (ssrPrefetch) {
-              onServerPrefetch(() => {
-                if (query.fetchStatus.value === 'idle') {
-                  console.error('Cannot ssrPrefetch an idle query', name);
-                  return;
-                }
-                return query.suspense();
-              });
-            }
-
-            watch(
-              query.data,
-              newData => {
-                // @ts-ignore
-                resolvedData[name as keyof T] = newData;
-              },
-              { immediate: true }
-            );
-
-            return [name, query];
           }
-        );
+
+          watch(
+            query.data,
+            newData => {
+              //@ts-ignore
+              resolvedData[name as keyof T] = newData;
+            },
+            { immediate: true }
+          );
+
+          return [name, query];
+        });
 
       return Object.fromEntries(entries) as unknown as UseTrpcQueryRecord<T>;
     },
-
-    async preload(route: RouteLocationNormalized, queryClient: QueryClient) {
+    preload(route: RouteLocationNormalized, queryClient: QueryClient) {
       return new Promise<void>(resolve => {
         if (import.meta.env.SSR) return;
 
@@ -92,11 +94,16 @@ export const createLoader = <T extends TrpcKeyDictionary>(
 
         function resolveQueryKeys() {
           let isDone = true;
-          Object.entries(options).forEach(([name, options]) => {
-            resolveQueryKey(name, options.key);
-            if (!queryKeys.has(name)) return;
+          objectEntries(options).forEach(([name, queryDef]) => {
+            const config = queryDef(route, resolvedData);
+            const isEnabled =
+              !config.queryOptions || config.queryOptions.enabled;
+            if (!isEnabled) return;
+
+            queryKeys.set(name, config.key as any);
+
             if (!resolvedData[name]) {
-              preloadQuery(name, options);
+              preloadQuery(name, config);
               if (options.waitPreloadBeforeNavigation) {
                 isDone = false;
               }
@@ -106,25 +113,16 @@ export const createLoader = <T extends TrpcKeyDictionary>(
           if (isDone) resolve();
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        function resolveQueryKey(key: keyof T, fn: Function) {
-          const pathAndInput = fn(route, resolvedData);
-          if (pathAndInput) queryKeys.set(key, pathAndInput);
-        }
-
         function preloadQuery(name: keyof T, { key, queryOptions }: any) {
-          const pathAndInput = key(route, resolvedData);
           const resolvedQueryOptions = {
             cacheTime: queryOptions.cacheTime,
             staleTime: queryOptions.staleTime || 30_000
           };
 
-          if (!pathAndInput) return;
-
           queryClient
             .fetchQuery(
-              pathAndInput,
-              () => (client as any).query(...pathAndInput),
+              key,
+              () => (client as any).query(...key),
               resolvedQueryOptions
             )
             .then(data => {

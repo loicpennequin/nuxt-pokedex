@@ -37,9 +37,12 @@ const closeSidebar = () => {
     <main
       col-span="1"
       col-start="2 lt-sm:1"
+      justify-self="center"
       :overflow-x="isSidebarOpened && 'lt-sm:hidden'"
     >
-      <slot />
+      <div>
+        <slot />
+      </div>
     </main>
   </UiContainer>
 </template>

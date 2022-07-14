@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
+    "@unocss/runtime": "^0.44.2",
     "pokeapi-typescript": "^2.1.0",
     "trpc": "^0.11.3",
     "vue-i18n": "^9.1.10",

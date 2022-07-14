@@ -7,7 +7,7 @@ import {
   IPokemonSpeciesVariety
 } from 'pokeapi-typescript';
 import { POKEAPI_BASE_URL, POKEAPI_ENDPOINTS } from '../constants';
-import { createPokemon } from '../factories/pokemonFactory';
+import { createPokemon, Pokemon } from '../factories/pokemonFactory';
 import { FindAllPokemonsDto } from './dtos';
 
 const pokemonApi = <T>(url: string, options?: any): Promise<T> =>
@@ -16,8 +16,7 @@ const pokemonApi = <T>(url: string, options?: any): Promise<T> =>
     baseURL: POKEAPI_BASE_URL
   }) as Promise<T>;
 
-export type Pokemon = ReturnType<typeof createPokemon>;
-export type EvoltutionChain = Pokemon[][];
+export type EvolutionChain = Pokemon[][];
 
 export const findAllPokemons = ({ limit, offset }: FindAllPokemonsDto) =>
   pokemonApi<INamedApiResourceList<IPokemonSpecies>>(
@@ -56,7 +55,7 @@ export const findEvolutionChain = async (evolutionChainId: number) => {
     `${POKEAPI_ENDPOINTS.EVOLUTION_CHAIN}/${evolutionChainId}`
   );
 
-  const chain: EvoltutionChain = [
+  const chain: EvolutionChain = [
     [await findPokemonByName(data.chain.species.name)]
   ];
 

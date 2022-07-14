@@ -8,6 +8,15 @@ export const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2';
 
 export const TOTAL_POKEMON_COUNT = 905;
 
+export const STATS = {
+  hp: 'HP',
+  defense: 'DEF',
+  attack: 'ATK',
+  'special-attack': 'SPATK',
+  'special-defense': 'SPDEF',
+  speed: 'SPD'
+};
+
 export const POKEMON_TYPE_COLORS = {
   normal: { bg: '#A8A77A', color: '#000' },
   fire: { bg: '#EE8130', color: '#000' },

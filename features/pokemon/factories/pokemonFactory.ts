@@ -24,6 +24,8 @@ export type PokemonDto = {
   species: IPokemonSpecies;
 };
 
+export type Pokemon = ReturnType<typeof createPokemon>;
+
 export const createPokemon = (dto: PokemonDto) => {
   const { pokemon, species } = dto;
 

@@ -18,3 +18,9 @@ export type InferQueryOutput<TRouteKey extends keyof TQueryValues & string> =
 export type InferMutationOutput<
   TRouteKey extends keyof TMutationValues & string
 > = inferProcedureOutput<TMutations[TRouteKey]>;
+
+type Entries<T> = { [K in keyof T]: [K, T[K]] }[keyof T];
+// typed version of OBject.entries
+export function objectEntries<T extends object>(t: T): Entries<T>[] {
+  return Object.entries(t) as any;
+}
