@@ -17,7 +17,7 @@ const { t } = useI18n();
         :key="evolution.id"
         :to="`/pokemon/${evolution.name}`"
       >
-        <figure>
+        <figure flex flex-col items-center justify-center>
           <UiImage :alt="evolution.name" :src="evolution.sprites.default" />
           <figcaption text-center>{{ evolution.name }}</figcaption>
         </figure>

@@ -41,19 +41,23 @@ export const createLoader = <T extends TrpcKeyDictionary>(
   return {
     load() {
       const route = useRoute();
+      const initialRouteName = route.name;
       const resolvedData: LoaderDependencies<T> = reactive({});
 
       const entries: [keyof T, ReturnType<typeof useTrpcQuery>][] =
         objectEntries(options).map(([name, queryDef]) => {
-          const pathAndInput = computed(() => {
-            const { key } = queryDef(route, resolvedData);
-
-            return key;
-          });
+          const pathAndInput = computed(
+            () => queryDef(route, resolvedData).key
+          );
 
           const resolvedQueryOptions = computed(() => {
             const { queryOptions = {} } = queryDef(route, resolvedData);
-            return queryOptions;
+
+            return {
+              ...queryOptions,
+              // options can be recomputed when leaving the page, giving wrong params to the query
+              enabled: route.name === initialRouteName && queryOptions.enabled
+            };
           });
 
           const query = useTrpcQuery(pathAndInput, resolvedQueryOptions as any);
@@ -81,6 +85,9 @@ export const createLoader = <T extends TrpcKeyDictionary>(
           return [name, query];
         });
 
+      onBeforeUnmount(() => {
+        console.log('will unmount');
+      });
       return Object.fromEntries(entries) as unknown as UseTrpcQueryRecord<T>;
     },
     preload(route: RouteLocationNormalized, queryClient: QueryClient) {
@@ -93,21 +100,25 @@ export const createLoader = <T extends TrpcKeyDictionary>(
         const resolvedData: LoaderDependencies<T> = {};
 
         function resolveQueryKeys() {
-          let isDone = true;
           objectEntries(options).forEach(([name, queryDef]) => {
             const config = queryDef(route, resolvedData);
             const isEnabled =
-              !config.queryOptions || config.queryOptions.enabled;
+              !config.queryOptions || (config.queryOptions.enabled ?? true);
             if (!isEnabled) return;
-
             queryKeys.set(name, config.key as any);
 
             if (!resolvedData[name]) {
               preloadQuery(name, config);
-              if (options.waitPreloadBeforeNavigation) {
-                isDone = false;
-              }
             }
+          });
+
+          const isDone = objectEntries(options).every(([name, queryDef]) => {
+            const { waitPreloadBeforeNavigation } = queryDef(
+              route,
+              resolvedData
+            );
+
+            return !waitPreloadBeforeNavigation || resolvedData[name];
           });
 
           if (isDone) resolve();

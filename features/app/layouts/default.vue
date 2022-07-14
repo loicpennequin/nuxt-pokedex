@@ -31,18 +31,19 @@ const closeSidebar = () => {
       transition-transform
       z="lt-sm:2"
     >
-      <AppSideBar />
+      <AppSideBar v-model:isOpened="isSidebarOpened" />
     </aside>
 
     <main
+      id="main"
       col-span="1"
       col-start="2 lt-sm:1"
-      justify-self="center"
+      justify-self-center
+      max-w-full
       :overflow-x="isSidebarOpened && 'lt-sm:hidden'"
+      p="x-0 y-5 sm:5"
     >
-      <div>
-        <slot />
-      </div>
+      <slot />
     </main>
   </UiContainer>
 </template>

@@ -2,7 +2,8 @@
 import detailLoader from '../../loaders/detailLoader';
 
 definePageMeta({
-  loader: detailLoader
+  loader: detailLoader,
+  key: 'pokemonDetail'
 });
 
 const {

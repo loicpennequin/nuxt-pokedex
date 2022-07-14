@@ -8,8 +8,10 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const route = useRoute();
+
 const SSR_RESULT_PER_PAGE = 35;
 const ITEM_HEIGHT = 32;
+
 const page = computed(() => Number(route.query.sidebar_page ?? 1));
 const offset = computed(() =>
   import.meta.env.SSR ? (page.value - 1) * SSR_RESULT_PER_PAGE : 0
@@ -23,6 +25,7 @@ const { data: pokemons, suspense } = useTrpcQuery(
   }
 );
 const queryClient = useQueryClient();
+
 onServerPrefetch(async () => {
   await suspense();
   // We went to limit the amount of result serialized in the HTML during SSR
@@ -94,9 +97,11 @@ onMounted(() => {
 
   <div v-if="!virtualScrollRoot" flex justify-between p="2" underline>
     <router-link v-if="page > 1" :to="{ query: { sidebar_page: page - 1 } }">
-      Previous
+      {{ t('previous') }}
     </router-link>
-    <router-link :to="{ query: { sidebar_page: page + 1 } }">Next</router-link>
+    <router-link :to="{ query: { sidebar_page: page + 1 } }">
+      {{ t('next') }}
+    </router-link>
   </div>
 </template>
 
@@ -109,7 +114,9 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "searchLabel": "Search for a Pokémon"
+    "searchLabel": "Search for a Pokémon",
+    "next": "Next",
+    "previous": "Previous"
   }
 }
 </i18n>

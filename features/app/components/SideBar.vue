@@ -1,14 +1,25 @@
+<script setup lang="ts">
+defineProps<{ isOpened: boolean }>();
+const emit = defineEmits<{
+  (e: 'update:isOpened', value: boolean): void;
+}>();
+
+const onItemClick = () => {
+  emit('update:isOpened', false);
+};
+</script>
+
 <template>
   <UiSurface
     is="nav"
-    bg="white dark:dark-100"
+    bg=" white dark:dark-100"
     flex
     flex-col
     h-full
     overflow-auto
     p="0"
     p-t-2
-    w="15rem"
+    w="20rem sm:15rem"
   >
     <AppSideBarToggle
       flex
@@ -23,6 +34,6 @@
       <span>Hide list</span>
     </AppSideBarToggle>
 
-    <PokemonList />
+    <PokemonList @item-click="onItemClick" />
   </UiSurface>
 </template>

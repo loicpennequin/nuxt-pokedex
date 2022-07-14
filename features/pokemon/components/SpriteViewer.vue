@@ -15,6 +15,7 @@ const isToggled = ref(false);
         v-if="!isToggled"
         key="default"
         :alt="props.pokemon.name"
+        aspect-square
         col-start-1
         row-start-1
         :sprite="props.pokemon.sprites.default"
@@ -25,6 +26,7 @@ const isToggled = ref(false);
         v-else
         key="shiny"
         :alt="t('shinyAlt', { name: props.pokemon.name })"
+        aspect-square
         col-start-1
         row-start-1
         :sprite="props.pokemon.sprites.shiny"

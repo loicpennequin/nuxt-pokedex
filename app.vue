@@ -17,7 +17,7 @@ router.beforeEach(async (to, from, next) => {
 <template>
   <NuxtLayout>
     <UiSpinner v-if="isPreloading" fixed right="5" top="8" z-10 />
-    <NuxtPage />
+    <NuxtPage page-key="static" />
   </NuxtLayout>
 </template>
 
