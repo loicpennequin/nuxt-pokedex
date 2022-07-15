@@ -15,6 +15,18 @@ router.beforeEach(async (to, from, next) => {
 });
 </script>
 <template>
+  <Link href="/assets/images/favicon.svg" rel="icon" type="image/svg+xml" />
+  <Link
+    href="/favicon.ico"
+    rel="alternate icon"
+    sizes="16x16"
+    type="image/png"
+  />
+  <Link href="/assets/images/apple-touch-icon.png" rel="apple-touch-icon" />
+  <Link color="#FFFFFF" href="/assets/images/favicon.svg" rel="mask-icon" />
+  <Meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <Title>Nuxt Pokédex</Title>
+
   <NuxtLayout>
     <UiSpinner v-if="isPreloading" fixed right="5" top="8" z-10 />
     <NuxtPage page-key="static" />

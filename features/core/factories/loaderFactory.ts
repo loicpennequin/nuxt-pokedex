@@ -50,7 +50,7 @@ export const createLoader = <T extends TrpcKeyDictionary>(
             () => queryDef(route, resolvedData).key
           );
 
-          const resolvedQueryOptions = computed(() => {
+          const resolvedQueryOptions = computed<any>(() => {
             const { queryOptions = {} } = queryDef(route, resolvedData);
 
             return {
@@ -92,7 +92,8 @@ export const createLoader = <T extends TrpcKeyDictionary>(
     },
     preload(route: RouteLocationNormalized, queryClient: QueryClient) {
       return new Promise<void>(resolve => {
-        if (import.meta.env.SSR) return;
+        if (!window.navigator.onLine) return resolve();
+        if (import.meta.env.SSR) return resolve();
 
         const client = useClient();
 

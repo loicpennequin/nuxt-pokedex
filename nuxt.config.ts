@@ -5,7 +5,6 @@ import presetIcons from '@unocss/preset-icons';
 import presetWind from '@unocss/preset-wind';
 import { presetAttributify } from 'unocss';
 
-const unoTransformers = [transformerDirective()];
 export default defineNuxtConfig({
   extends: [
     './features/app',
@@ -39,6 +38,6 @@ export default defineNuxtConfig({
         }
       }) as any
     ],
-    transformers: unoTransformers as any
+    transformers: [transformerDirective()] as any
   }
 });

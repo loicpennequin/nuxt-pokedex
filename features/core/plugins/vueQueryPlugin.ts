@@ -10,7 +10,12 @@ import { defineNuxtPlugin } from '#app';
 export default defineNuxtPlugin(nuxt => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: false }
+      queries: {
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+        retry: false,
+        networkMode: 'always'
+      }
     }
   });
   const options: VueQueryPluginOptions = { queryClient };
