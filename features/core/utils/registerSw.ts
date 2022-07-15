@@ -39,12 +39,13 @@ export function registerSW(options: RegisterSWOptions = {}) {
     // __SW__, __SCOPE__ and __TYPE__ will be replaced by virtual module
     wb = new Workbox('/sw.js', { scope: '/' });
 
-    wb.addEventListener('activated', (event: any) => {
-      if (event.isUpdate) auto && window.location.reload();
-      else onOfflineReady?.();
+    wb.addEventListener('activated', () => {
+      console.log('on offline ready');
+      onOfflineReady?.();
     });
 
     const showSkipWaitingPrompt = () => {
+      console.log('need refresh');
       onNeedRefresh?.();
     };
 
@@ -55,6 +56,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
     wb.register({ immediate })
       .then((r: any) => {
         registration = r;
+        console.log('on register');
         onRegistered?.(r);
       })
       .catch((e: any) => {

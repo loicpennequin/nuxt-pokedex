@@ -13,8 +13,7 @@ export default defineNuxtPlugin(nuxt => {
       queries: {
         staleTime: 30_000,
         refetchOnWindowFocus: false,
-        retry: false,
-        networkMode: 'always'
+        retry: false
       }
     }
   });

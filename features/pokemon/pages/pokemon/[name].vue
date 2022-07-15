@@ -7,7 +7,12 @@ definePageMeta({
 });
 
 const {
-  pokemon: { isLoading: isPokemonLoading, data: pokemon, isError },
+  pokemon: {
+    isLoading: isPokemonLoading,
+    fetchStatus: pokemonFetchStatus,
+    data: pokemon,
+    isError
+  },
   evolutions: { isLoading: isEvolutionsLoading, data: evolutions }
 } = detailLoader.load();
 
@@ -16,6 +21,11 @@ const { t } = useI18n();
 
 <template>
   <div max-w="full" space-y="4" w="screen-sm">
+    <pre>
+      loading: {{ isPokemonLoading }}
+      fetchStatus: {{ pokemonFetchStatus }}
+      has data: {{ !!pokemon }}
+    </pre>
     <template v-if="isPokemonLoading">
       <UiSurface animate-pulse h="17" />
       <UiSurface animate-pulse h="42" />

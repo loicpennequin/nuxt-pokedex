@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { vUid } from '../directives/unique-id';
 
-const props = defineProps<{ modelValue: boolean }>();
+const props = defineProps<{ modelValue: boolean; ariaLabel: string }>();
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
 }>();
@@ -29,7 +29,14 @@ const inputEl = ref<HTMLInputElement>();
     rounded="full"
     text-xs
   >
-    <input v-model="vModel" ref="inputEl" v-uid sr-only type="checkbox" />
+    <input
+      v-model="vModel"
+      ref="inputEl"
+      v-uid
+      :aria-label="props.ariaLabel"
+      sr-only
+      type="checkbox"
+    />
     <slot name="off" />
     <label
       border="solid 1 gray-400 dark:gray-500"

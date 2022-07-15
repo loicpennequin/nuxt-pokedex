@@ -7,8 +7,15 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div>
-    <UiImage v-if="props.sprite" :alt="props.alt" :src="props.sprite" />
+  <div aspect-square>
+    <UiImage
+      v-if="props.sprite"
+      :alt="props.alt"
+      crossorigin="anonymous"
+      height="100"
+      :src="props.sprite"
+      width="100"
+    />
     <p v-else m-x="auto" text="sm" text-center>
       {{ t('unavailable') }}
     </p>

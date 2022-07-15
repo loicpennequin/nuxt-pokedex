@@ -40,13 +40,15 @@ export const createLoader = <T extends TrpcKeyDictionary>(
 ): Loader<T> => {
   return {
     load() {
+      const queryClient = useQueryClient();
       const route = useRoute();
+
       const initialRouteName = route.name;
       const resolvedData: LoaderDependencies<T> = reactive({});
 
       const entries: [keyof T, ReturnType<typeof useTrpcQuery>][] =
         objectEntries(options).map(([name, queryDef]) => {
-          const pathAndInput = computed(
+          const pathAndInput = computed<any>(
             () => queryDef(route, resolvedData).key
           );
 
@@ -56,18 +58,43 @@ export const createLoader = <T extends TrpcKeyDictionary>(
             return {
               ...queryOptions,
               // options can be recomputed when leaving the page, giving wrong params to the query
-              enabled: route.name === initialRouteName && queryOptions.enabled
+              enabled: route.name === initialRouteName && queryOptions.enabled,
+              onSuccess(data: any) {
+                //@ts-ignore
+                resolvedData[name as keyof T] = data;
+                return (queryOptions as any).onSuccess?.(data);
+              }
             };
           });
 
           const query = useTrpcQuery(pathAndInput, resolvedQueryOptions as any);
+          //@ts-ignore
+          resolvedData[name as keyof T] = query.data.value;
 
           const { ssrPrefetch } = queryDef(route, resolvedData);
           if (ssrPrefetch) {
             onServerPrefetch(() => {
               if (query.fetchStatus.value === 'idle') {
-                console.error('Cannot ssrPrefetch an idle query', name);
-                return;
+                // return;
+                return new Promise<void>(resolve => {
+                  watch(
+                    () => resolvedQueryOptions.value.enabled,
+                    newVal => {
+                      if (!newVal) return;
+
+                      query.suspense().then(() => {
+                        const data = query.data.value;
+                        queryClient.setQueryData(pathAndInput.value, data);
+                        queryClient.removeQueries([
+                          pathAndInput.value[0],
+                          undefined
+                        ]);
+                        resolve();
+                      });
+                    },
+                    { immediate: true }
+                  );
+                });
               }
               return query.suspense();
             });
@@ -85,9 +112,6 @@ export const createLoader = <T extends TrpcKeyDictionary>(
           return [name, query];
         });
 
-      onBeforeUnmount(() => {
-        console.log('will unmount');
-      });
       return Object.fromEntries(entries) as unknown as UseTrpcQueryRecord<T>;
     },
     preload(route: RouteLocationNormalized, queryClient: QueryClient) {

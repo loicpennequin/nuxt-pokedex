@@ -1,8 +1,5 @@
 importScripts('<%= options.workboxUrl %>');
 
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', () => self.clients.claim());
-
 const { registerRoute, NavigationRoute } = workbox.routing;
 const { NetworkFirst, StaleWhileRevalidate, CacheFirst } = workbox.strategies;
 const { CacheableResponsePlugin } = workbox.cacheableResponse;
@@ -11,6 +8,12 @@ const { setCacheNameDetails, cacheNames } = workbox.core;
 
 const { precacheAndRoute, cleanupOutdatedCaches, getCacheKeyForURL } =
   workbox.precaching;
+
+const isDev = '<%= options.dev %>' === 'true';
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
 setCacheNameDetails({
   prefix: 'vite-pokedex',
@@ -22,21 +25,21 @@ setCacheNameDetails({
 precacheAndRoute([{ url: '/offline-shell', revision: new Date().toString() }]);
 cleanupOutdatedCaches();
 
-// Cache page navigations (html) with a Network First strategy, when offline fallback to offline shell
-// registerRoute(
-//   ({ request }) => {
-//     return request.mode === 'navigate';
-//   },
-//   new NetworkFirst({
-//     cacheName: 'nuxt-pokedex-pages-v1',
-//     plugins: [new CacheableResponsePlugin({ statuses: [200] })]
-//   })
-// );
-
-const htmlHandler = new NetworkFirst({ cacheName: 'nuxt-pokedex-pages-v1' });
+const htmlHandler = new NetworkFirst({
+  cacheName: 'nuxt-pokedex-pages-v1',
+  plugins: [
+    new CacheableResponsePlugin({ statuses: [200] }),
+    {
+      async cacheKeyWillBeUsed({ request, mode }) {
+        const url = new URL(request.url, 'http://localhost:3000');
+        url.searchParams.set('sw', true);
+        return url.toString();
+      }
+    }
+  ]
+});
 registerRoute(
   new NavigationRoute(async options => {
-    console.log('hello ?');
     try {
       const response = await htmlHandler.handle(options);
       if (!response) throw new Error('NetworkFirst fail');
@@ -45,7 +48,7 @@ registerRoute(
     } catch (err) {
       const cache = await caches.open(cacheNames.precache);
       const cacheKey = getCacheKeyForURL('/offline-shell');
-      if (!cacheKey) throw new Error(`Non-precached-url: ${'/offline-shell'}`);
+      if (!cacheKey) throw new Error(`Non-precached-url: /offline-shell`);
 
       const fallbackResponse = await cache.match(cacheKey);
       if (fallbackResponse) {
@@ -62,10 +65,10 @@ htmlRuntimeCache.onmessage = async event => {
   if (event.data.type !== 'NAVIGATE') return;
 
   const cache = await caches.open('nuxt-pokedex-pages-v1');
-  cache.add(event.data.url);
+  const url = new URL(event.data.url, 'http://localhost:3000');
+  url.searchParams.set('sw', true);
+  cache.add(url.toString());
 };
-
-const isDev = '<%= options.dev %>' === 'true';
 
 if (!isDev) {
   // Cache CSS, JS, and Web Worker requests with a Stale While Revalidate strategy
@@ -91,19 +94,6 @@ registerRoute(
         maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
         maxEntries: 200
       }),
-      new CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
-    ]
-  })
-);
-
-// Cache api request using network first, this is possible because all api data is static
-registerRoute(
-  /\/trpc\//i,
-  new NetworkFirst({
-    cacheName: 'nuxt-pokedex-api-v1',
-    plugins: [
       new CacheableResponsePlugin({
         statuses: [0, 200]
       })

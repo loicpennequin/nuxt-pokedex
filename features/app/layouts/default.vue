@@ -6,8 +6,6 @@ const isSidebarOpened = ref(false);
 const closeSidebar = () => {
   isSidebarOpened.value = false;
 };
-
-const isProd = import.meta.env.PROD;
 </script>
 
 <template>
@@ -48,7 +46,8 @@ const isProd = import.meta.env.PROD;
       <slot />
     </main>
     <ClientOnly>
-      <AppServiceWorkerPrompt />
+      <!-- <AppServiceWorkerPrompt /> -->
+      <AppNetworkStatusToast />
     </ClientOnly>
   </UiContainer>
 </template>

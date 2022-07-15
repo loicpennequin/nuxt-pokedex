@@ -38,6 +38,7 @@ export default defineNuxtConfig({
         }
       }) as any
     ],
-    transformers: [transformerDirective()] as any
+    transformers: [transformerDirective()] as any,
+    safelist: ['[grid-cols~="3"]', '[grid-cols~="2"]', '[grid-cols~="1"]']
   }
 });

@@ -14,10 +14,12 @@ const isDarkMode = computed({
     document.body.addEventListener('transitionend', cleanup);
   }
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
-  <UiSwitch v-model="isDarkMode">
+  <UiSwitch v-model="isDarkMode" :aria-label="t('label')">
     <template #off><div fill="dark:white" i-ui-sun /></template>
     <template #on><div fill="dark:white" i-ui-moon /></template>
   </UiSwitch>
@@ -31,3 +33,11 @@ body.color-mode--animating {
   }
 }
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "label": "Activate dark mode"
+  }
+}
+</i18n>

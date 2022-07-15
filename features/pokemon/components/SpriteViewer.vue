@@ -15,7 +15,6 @@ const isToggled = ref(false);
         v-if="!isToggled"
         key="default"
         :alt="props.pokemon.name"
-        aspect-square
         col-start-1
         row-start-1
         :sprite="props.pokemon.sprites.default"
@@ -26,7 +25,6 @@ const isToggled = ref(false);
         v-else
         key="shiny"
         :alt="t('shinyAlt', { name: props.pokemon.name })"
-        aspect-square
         col-start-1
         row-start-1
         :sprite="props.pokemon.sprites.shiny"
@@ -34,7 +32,7 @@ const isToggled = ref(false);
       />
     </transition-group>
 
-    <UiSwitch v-model="isToggled">
+    <UiSwitch v-model="isToggled" :aria-label="t('labels.a11y')">
       <template #off>{{ t('labels.normal') }}</template>
       <template #on>{{ t('labels.shiny') }}</template>
     </UiSwitch>
@@ -57,7 +55,8 @@ const isToggled = ref(false);
     "shinyAlt": "{name} shiny",
     "labels": {
       "normal": "Normal",
-      "shiny": "Shiny"
+      "shiny": "Shiny",
+      "a11y": "Switch between normal and shiny image"
     }
   }
 }

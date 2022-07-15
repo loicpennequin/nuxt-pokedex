@@ -9,8 +9,11 @@ export default defineNuxtConfig({
     endpoint: '/trpc'
   },
   pwa: {
+    manifest: {
+      name: 'Nuxt Pokedex',
+      short_name: 'Nuxt Pokedex'
+    },
     workbox: {
-      // enabled: process.env.NODE_ENV === 'production',
       enabled: true,
       swTemplatePath: resolve(process.cwd(), 'features/core/templates/sw.js'),
       autoRegister: false

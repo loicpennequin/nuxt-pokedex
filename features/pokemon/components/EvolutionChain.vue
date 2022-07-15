@@ -18,7 +18,11 @@ const { t } = useI18n();
         :to="`/pokemon/${evolution.name}`"
       >
         <figure flex flex-col items-center justify-center>
-          <UiImage :alt="evolution.name" :src="evolution.sprites.default" />
+          <UiImage
+            :alt="evolution.name"
+            crossorigin="anonymous"
+            :src="evolution.sprites.default"
+          />
           <figcaption text-center>{{ evolution.name }}</figcaption>
         </figure>
       </AppLink>
