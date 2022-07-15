@@ -31,7 +31,7 @@ const htmlHandler = new NetworkFirst({
     new CacheableResponsePlugin({ statuses: [200] }),
     {
       async cacheKeyWillBeUsed({ request, mode }) {
-        const url = new URL(request.url, 'http://localhost:3000');
+        const url = new URL(request.url, location.origin);
         url.searchParams.set('sw', true);
         return url.toString();
       }

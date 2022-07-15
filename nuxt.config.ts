@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   ],
   modules: ['trpc-nuxt', '@unocss/nuxt'],
   trpc: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.NUXT_TRPC_API_BASE,
     endpoint: '/trpc'
   },
   typescript: {
