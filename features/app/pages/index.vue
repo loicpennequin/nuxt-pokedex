@@ -79,7 +79,7 @@ const {
     "title": "Welcome to the online Pokédex !",
     "subtitle": "Click on a pokemon in the sidebar to see its detail.",
     "potd": {
-      "title": "Pokémon of the day"
+      "title": "Pokémon spotlight"
     }
   }
 }

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 const { replace } = useRouter();
+const route = useRoute();
 
 onMounted(() => {
-  replace('/');
+  replace(route.fullPath);
 });
 </script>
 

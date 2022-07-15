@@ -21,18 +21,7 @@ const onItemClick = () => {
     p-t-2
     w="20rem sm:15rem"
   >
-    <AppSideBarToggle
-      flex
-      gap="3"
-      items="center"
-      justify="start"
-      px="3"
-      title="Hide list"
-      w="full"
-    >
-      <span i-ui-arrows-right />
-      <span>Hide list</span>
-    </AppSideBarToggle>
+    <AppSideBarToggle aria-label="Hide list" h-6 i-ui-close px="3" self-end />
 
     <PokemonList @item-click="onItemClick" />
   </UiSurface>
