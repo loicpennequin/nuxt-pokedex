@@ -46,7 +46,7 @@ const closeSidebar = () => {
       <slot />
     </main>
     <ClientOnly>
-      <!-- <AppServiceWorkerPrompt /> -->
+      <AppServiceWorkerPrompt />
       <AppNetworkStatusToast />
     </ClientOnly>
   </UiContainer>
