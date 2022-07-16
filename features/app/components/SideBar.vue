@@ -22,7 +22,7 @@ const onItemClick = () => {
     w="20rem sm:15rem"
   >
     <AppSideBarToggle aria-label="Hide list" h-6 i-ui-close px="3" self-end />
-
+    <AppPokedexDownloader />
     <PokemonList @item-click="onItemClick" />
   </UiSurface>
 </template>

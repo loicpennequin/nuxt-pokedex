@@ -14,7 +14,7 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   } = options;
 
   const { isSupported, post } = useBroadcastChannel({
-    name: 'sw-loader-channel'
+    name: 'runtime-cache-channel'
   });
 
   const needRefresh = ref(false);

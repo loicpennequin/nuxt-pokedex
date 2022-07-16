@@ -9,9 +9,8 @@ export interface RegisterSWOptions {
   onRegisterError?: (error: any) => void;
 }
 
-const auto = false;
-
 export function registerSW(options: RegisterSWOptions = {}) {
+  // if (import.meta.env.DEV) return;
   const {
     immediate = false,
     onNeedRefresh,

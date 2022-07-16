@@ -30,7 +30,7 @@ const htmlHandler = new NetworkFirst({
   plugins: [
     new CacheableResponsePlugin({ statuses: [200] }),
     {
-      async cacheKeyWillBeUsed({ request, mode }) {
+      async cacheKeyWillBeUsed({ request }) {
         const url = new URL(request.url, location.origin);
         url.searchParams.set('sw', true);
         return url.toString();
@@ -59,15 +59,27 @@ registerRoute(
     }
   })
 );
-const htmlRuntimeCache = new BroadcastChannel('sw-loader-channel');
-htmlRuntimeCache.onmessage = async event => {
+const runtimeCacheChannel = new BroadcastChannel('runtime-cache-channel');
+runtimeCacheChannel.onmessage = async event => {
   if (event.type !== 'message') return;
-  if (event.data.type !== 'NAVIGATE') return;
 
-  const cache = await caches.open('nuxt-pokedex-pages-v1');
-  const url = new URL(event.data.url, 'http://localhost:3000');
-  url.searchParams.set('sw', true);
-  cache.add(url.toString());
+  const cachePage = async path => {
+    const cache = await caches.open('nuxt-pokedex-pages-v1');
+    const urlObj = new URL(path, location.origin);
+    urlObj.searchParams.set('sw', true);
+    const url = urlObj.toString();
+    const match = await cache.match(url);
+    if (match) return;
+    return cache.add(url.toString());
+  };
+
+  switch (event.data.type) {
+    case 'NAVIGATE':
+      cachePage(event.data.url);
+      break;
+    default:
+      console.warn('unhandler runtime channel event', event.data.type);
+  }
 };
 
 if (!isDev) {
@@ -92,7 +104,7 @@ registerRoute(
       new ExpirationPlugin({
         // Only cache  for a week
         maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
-        maxEntries: 200
+        maxEntries: 905 * 2
       }),
       new CacheableResponsePlugin({
         statuses: [0, 200]

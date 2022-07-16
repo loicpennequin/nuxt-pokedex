@@ -5,7 +5,7 @@ import { resolve } from 'path';
 export default defineNuxtConfig({
   modules: ['trpc-nuxt', '@dariajs/nuxt-pwa'],
   trpc: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.NUXT_TRPC_API_BASE,
     endpoint: '/trpc'
   },
   pwa: {

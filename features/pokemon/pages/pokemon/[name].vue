@@ -65,7 +65,11 @@ const { t } = useI18n();
         {{ pokemon.description }}
       </AppContentBlock>
 
-      <UiSurface v-if="isEvolutionsLoading" animate-pulse h="30" />
+      <UiSurface
+        v-if="isEvolutionsLoading && pokemon.evolutionChainId"
+        animate-pulse
+        h="30"
+      />
       <AppContentBlock
         v-else-if="evolutions"
         rounded="lg"
