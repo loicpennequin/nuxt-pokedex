@@ -1,6 +1,5 @@
 import type { RegisterSWOptions } from '../utils/registerSw';
 import { registerSW } from '../utils/registerSw';
-import { useBroadcastChannel } from '@vueuse/core';
 
 export type { RegisterSWOptions };
 
@@ -12,10 +11,6 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
     onRegistered,
     onRegisterError
   } = options;
-
-  const { isSupported, post } = useBroadcastChannel({
-    name: 'runtime-cache-channel'
-  });
 
   const needRefresh = ref(false);
   const offlineReady = ref(false);
@@ -32,16 +27,6 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
     },
     onRegistered,
     onRegisterError
-  });
-
-  const router = useRouter();
-  router.afterEach(to => {
-    if (isSupported) {
-      post({
-        type: 'NAVIGATE',
-        url: to.fullPath
-      });
-    }
   });
 
   return {

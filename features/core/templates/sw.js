@@ -27,17 +27,9 @@ cleanupOutdatedCaches();
 
 const htmlHandler = new NetworkFirst({
   cacheName: 'nuxt-pokedex-pages-v1',
-  plugins: [
-    new CacheableResponsePlugin({ statuses: [200] }),
-    {
-      async cacheKeyWillBeUsed({ request }) {
-        const url = new URL(request.url, location.origin);
-        url.searchParams.set('sw', true);
-        return url.toString();
-      }
-    }
-  ]
+  plugins: [new CacheableResponsePlugin({ statuses: [200] })]
 });
+
 registerRoute(
   new NavigationRoute(async options => {
     try {
@@ -59,28 +51,6 @@ registerRoute(
     }
   })
 );
-const runtimeCacheChannel = new BroadcastChannel('runtime-cache-channel');
-runtimeCacheChannel.onmessage = async event => {
-  if (event.type !== 'message') return;
-
-  const cachePage = async path => {
-    const cache = await caches.open('nuxt-pokedex-pages-v1');
-    const urlObj = new URL(path, location.origin);
-    urlObj.searchParams.set('sw', true);
-    const url = urlObj.toString();
-    const match = await cache.match(url);
-    if (match) return;
-    return cache.add(url.toString());
-  };
-
-  switch (event.data.type) {
-    case 'NAVIGATE':
-      cachePage(event.data.url);
-      break;
-    default:
-      console.warn('unhandler runtime channel event', event.data.type);
-  }
-};
 
 if (!isDev) {
   // Cache CSS, JS, and Web Worker requests with a Stale While Revalidate strategy

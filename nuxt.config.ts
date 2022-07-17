@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt';
+import pkgJson from './package.json';
 
 export default defineNuxtConfig({
   extends: [
@@ -10,5 +11,10 @@ export default defineNuxtConfig({
   modules: ['@unocss/nuxt'],
   typescript: {
     strict: true
+  },
+  runtimeConfig: {
+    public: {
+      version: pkgJson.version
+    }
   }
 });

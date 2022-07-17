@@ -4,6 +4,8 @@ const { t } = useI18n();
 const { download, isDownloading, isDownloaded, progress } =
   usePokedexDownloader();
 
+const percentage = computed(() => `${progress.value}%`);
+
 const label = computed(() => {
   if (isDownloading.value) {
     return t('downloading', { progress: progress.value });
@@ -20,7 +22,6 @@ const label = computed(() => {
     gap-2
     items-center
     m-l-3
-    opacity="100 disabled:30"
     @click="download"
   >
     <UiSpinner v-if="isDownloading" />
@@ -29,9 +30,21 @@ const label = computed(() => {
 
     {{ label }}
   </button>
-  <div bg-slate-400 h="1" :style="{ width: `${progress}%` }" />
+  <div
+    v-show="!isDownloaded"
+    bg-slate-400
+    class="progress-bar"
+    duration-200
+    h="1"
+    transition-transform
+  />
 </template>
 
+<style scoped>
+.progress-bar {
+  transform: scaleX(v-bind(percentage));
+}
+</style>
 <i18n lang="json">
 {
   "en": {

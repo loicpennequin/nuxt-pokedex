@@ -1,6 +1,6 @@
 import { chunk } from 'lodash-es';
 import { TOTAL_POKEMON_COUNT } from '../constants';
-import { set } from 'idb-keyval';
+import { get, set } from 'idb-keyval';
 import { Pokemon } from '../factories/pokemonFactory';
 import {
   PathAndInput,
@@ -10,12 +10,23 @@ import { dehydrate } from 'vue-query';
 
 type Chunk = { name: string }[];
 
-const CHUNK_SIZE = 25;
+const CHUNK_SIZE = 10;
+const IDB_KEY = 'dehydratedQueryClient';
 
 export const usePokedexDownloader = () => {
-  const isDownloaded = ref<boolean>(false);
   const client = useClient();
   const queryClient = useQueryClient();
+  const config = useRuntimeConfig();
+
+  const isDownloaded = ref<boolean>(false);
+  onMounted(async () => {
+    const persistedState = await get(IDB_KEY);
+    console.log(persistedState);
+    if (!persistedState) return;
+    const currentVersion = config.public.version;
+    if (currentVersion !== persistedState.version) return;
+    isDownloaded.value = true;
+  });
 
   const { data: pokemons } = useTrpcQuery(
     ['pokemon.findAll', { limit: TOTAL_POKEMON_COUNT, offset: 0 }],
@@ -29,8 +40,12 @@ export const usePokedexDownloader = () => {
 
   const processChunk = async (chunk: Chunk) => {
     const promises = chunk.map(async ({ name }) => {
-      const pokemon = await fetchPokédexEntry(name);
-      await cacheSprites(pokemon);
+      try {
+        const pokemon = await fetchPokédexEntry(name);
+        await prefetchSprites(pokemon);
+      } catch (err) {
+        console.error(err);
+      }
     });
 
     const results = await Promise.all(promises);
@@ -59,7 +74,7 @@ export const usePokedexDownloader = () => {
     return result;
   };
 
-  const cacheSprites = (pokemon: Pokemon) =>
+  const prefetchSprites = (pokemon: Pokemon) =>
     Promise.all(
       Object.values(pokemon.sprites)
         .filter(Boolean)
@@ -72,6 +87,11 @@ export const usePokedexDownloader = () => {
               img.style.display = 'none';
               document.body.appendChild(img);
               img.addEventListener('load', () => {
+                img.remove();
+                resolve();
+              });
+              img.addEventListener('error', () => {
+                console.error('error caching sprite', url);
                 img.remove();
                 resolve();
               });
@@ -93,8 +113,11 @@ export const usePokedexDownloader = () => {
       for (const chunk of chunks) {
         await processChunk(chunk);
       }
-
-      set('dehydratedQueryClient', dehydrate(queryClient));
+      const persistedState = {
+        version: config.public.version,
+        state: JSON.parse(JSON.stringify(dehydrate(queryClient))) // using the dehydrated state causes indexeddb errors
+      };
+      set(IDB_KEY, persistedState);
       isDownloading.value = false;
       isDownloaded.value = true;
     }

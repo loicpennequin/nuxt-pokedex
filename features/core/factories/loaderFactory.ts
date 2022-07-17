@@ -71,30 +71,29 @@ export const createLoader = <T extends TrpcKeyDictionary>(
           //@ts-ignore
           resolvedData[name as keyof T] = query.data.value;
 
+          const getDependentSSRPromise = () => {
+            return new Promise<void>(resolve => {
+              watch(
+                () => resolvedQueryOptions.value.enabled,
+                async newVal => {
+                  if (!newVal) return;
+
+                  await query.suspense();
+                  const data = query.data.value;
+                  queryClient.setQueryData(pathAndInput.value, data);
+                  queryClient.removeQueries([pathAndInput.value[0], undefined]);
+                  resolve();
+                },
+                { immediate: true }
+              );
+            });
+          };
+
           const { ssrPrefetch } = queryDef(route, resolvedData);
           if (ssrPrefetch) {
             onServerPrefetch(() => {
               if (query.fetchStatus.value === 'idle') {
-                // return;
-                return new Promise<void>(resolve => {
-                  watch(
-                    () => resolvedQueryOptions.value.enabled,
-                    newVal => {
-                      if (!newVal) return;
-
-                      query.suspense().then(() => {
-                        const data = query.data.value;
-                        queryClient.setQueryData(pathAndInput.value, data);
-                        queryClient.removeQueries([
-                          pathAndInput.value[0],
-                          undefined
-                        ]);
-                        resolve();
-                      });
-                    },
-                    { immediate: true }
-                  );
-                });
+                return getDependentSSRPromise();
               }
               return query.suspense();
             });
